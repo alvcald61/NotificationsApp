@@ -1,8 +1,0 @@
-1.- Actualmente, estoy leyendo el libro SQL antipattern. Trata básicamente de explicar cuales son los antipatrones usuales
-cuando se travaja con SQL, cada capitulo es un antipatón distinto por lo que identifica más de 15 antipatrones.
-Es recomendable por la estructura que le da a cada capitulo, tienes la sección de descripción del antipatrón, 
-Cuales son las consecuancias negativas de usarlo, como identificarlo y las diferentes alternativas de solución
-
-2.- La feature más interesante del sistema es la de Segmentación de usuarios. Creo que es una de las más útiles es ya que 
-de ser aplicada correctamente puede generar más valor al usuario. Además, contar con está opción genera una ventaja competitiva 
-importante a quien lo use ya que le permite conocer mejor a su cliente y aplicar mejores estrategias de marketinf. 
