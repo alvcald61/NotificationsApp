@@ -1,6 +1,7 @@
 import model.InformativeNotification
 import model.Notification
 import model.UrgentNotification
+import model.manager.NotificationManager
 import model.manager.impl.NotificationManagerImpl
 import model.observer.impl.User
 import model.orservable.impl.Subject
@@ -13,7 +14,8 @@ val options = createOptions()
 fun main(args: Array<String>) {
     val userList: MutableList<User> = mutableListOf<User>()
     val subjectList: MutableList<Subject> = mutableListOf<Subject>()
-    val notificationManager = NotificationManagerImpl()
+    val notificationManager = NotificationManagerImpl(userList = userList, subjectList = subjectList)
+    initLists(userList, subjectList, notificationManager)
     while (true) {
         printManu(options)
         try {
@@ -34,24 +36,78 @@ fun main(args: Array<String>) {
 
                 7 -> notificationManager.createNotification(
                     getSubjectFromConsole(subjectList),
-                    getNotificationFromConsole()
+                    getNewNotification()
                 )
 
                 8 -> notificationManager.createNotificationForUser(
-                    getNotificationFromConsole(),
+                    getNewNotification(),
                     getUserFromConsole(userList),
                     getSubjectFromConsole(subjectList)
                 )
 
-                9 -> notificationManager.showUserNotifications(getUserFromConsole(userList))
-                10 -> notificationManager.showSubjectNotification(getSubjectFromConsole(subjectList))
-                11 -> break
+                9 -> showNotificationUserMenu(notificationManager, userList)
+                10 -> showNotificationSubjectMenu(notificationManager, subjectList)
+                11 -> markNotificationAsRead(notificationManager, userList)
+                12 -> break
             }
         } catch (e: Exception) {
             println(e.message)
         }
     }
     println("----------------------------------------------------------------")
+}
+
+fun markNotificationAsRead(notificationManager: NotificationManagerImpl, userList: MutableList<User>) {
+    val user = getUserFromConsole(userList)
+    notificationManager.markNotificationAsRead(user, getNotificationFromConsole(user))
+}
+
+
+fun showNotificationSubjectMenu(notificationManager: NotificationManagerImpl, subjectList: MutableList<Subject>) {
+    notificationManager.showSubjects()
+    println("Select the subject by typing the id:")
+    notificationManager.showSubjectNotification(getSubjectFromConsole(subjectList))
+}
+
+fun initLists(
+    userList: MutableList<User>,
+    subjectList: MutableList<Subject>, 
+    notificationManager: NotificationManager
+) {
+    userList.addAll(
+        listOf(
+            User("Jan Kowalski"),
+            User("Adam Nowak"),
+            User("Piotr Kowalski"),
+            User("Krzysztof Nowak"),
+            User("Jan Nowak"),
+        )
+    )
+    subjectList.addAll(
+        listOf(
+            Subject("Math"),
+            Subject("Physics"),
+            Subject("Chemistry"),
+            Subject("Biology"),
+            Subject("History"),
+        )
+    )
+    notificationManager.subscribeUserToSubject(userList[0], subjectList[0])
+    notificationManager.subscribeUserToSubject(userList[1], subjectList[0])
+    notificationManager.subscribeUserToSubject(userList[2], subjectList[0])
+    notificationManager.subscribeUserToSubject(userList[3], subjectList[0])
+    notificationManager.subscribeUserToSubject(userList[4], subjectList[0])
+    notificationManager.subscribeUserToSubject(userList[0], subjectList[1])
+    notificationManager.subscribeUserToSubject(userList[2], subjectList[1])
+    notificationManager.subscribeUserToSubject(userList[2], subjectList[2])
+    notificationManager.subscribeUserToSubject(userList[3], subjectList[3])
+    notificationManager.subscribeUserToSubject(userList[4], subjectList[4])
+    notificationManager.subscribeUserToSubject(userList[4], subjectList[2])
+}
+
+fun showNotificationUserMenu(notificationManager: NotificationManager, userList: List<User>) {
+    println("Select the user by typing the id:")
+    notificationManager.showUserNotifications(getUserFromConsole(userList))
 }
 
 fun getNewSubject(): Subject {
@@ -72,6 +128,7 @@ fun createOptions(): MutableMap<Int, String> {
     options[options.size + 1] = "Create Notification to User"
     options[options.size + 1] = "Show Notifications from User"
     options[options.size + 1] = "Show Notifications from Topic"
+    options[options.size + 1] = "Mark User Notification as Read"
     options[options.size + 1] = "Exit"
     return options
 }
@@ -89,13 +146,17 @@ fun printManu(options: Map<Int, String>) {
 fun getNewUser(): User {
     print("Enter user name: ")
     val name = readln()
+    if(name.isEmpty()) throw Exception("Name cannot be empty")
     return User(name)
 
 }
 
 private fun getSubjectFromConsole(subjectList: List<Subject>): Subject {
+    subjectList.forEach {
+        println(String.format(PRINTING_FORMAT, it.id, it.name))
+    }
     println("Enter subject id:")
-    val subjectId = readln().toInt()
+    val subjectId = readln().toIntOrNull() ?: throw Exception("Id must be a number")
     return findSubjectInList(subjectId, subjectList)
 }
 
@@ -108,14 +169,26 @@ private fun findSubjectInList(subjectId: Int, subjectList: List<Subject>): Subje
 }
 
 private fun getUserFromConsole(userList: List<User>): User {
+    userList.forEach {
+        println(String.format(PRINTING_FORMAT, it.id, it.name))
+    }
     println("Enter user id:")
-    val userId = readln().toInt()
+    val userId = readln().toIntOrNull()?: throw Exception("Id must be a number")
     return findUserInList(userId, userList)
 }
 
-private fun getNotificationFromConsole(): Notification {
-    println("Enter type of notification: (1: informative, 2: Urgent")
-    val notificationType = readln().toInt()
+fun getNotificationFromConsole(user: User): Notification{
+    println("Select the notification by typing the id:")
+    user.notifications.forEach {
+        println(String.format(PRINTING_FORMAT, it.id, it.message))
+    }
+    val notificationId = readln().toIntOrNull()?: throw Exception("Id must be a number")
+    return user.notifications.find { it.id == notificationId }?: throw Exception("Notification not found")
+}
+
+private fun getNewNotification(): Notification {
+    println("Enter type of notification: (1: informative, 2: Urgent)")
+    val notificationType = readln().toIntOrNull()?: throw Exception("Type must be a number")
     println("Enter message of the notification")
     val message = readln()
     println("Enter the expiration date of notification in the format: day-month-year")
@@ -127,3 +200,16 @@ private fun getNotificationFromConsole(): Notification {
     }
     return if (notificationType == 1) InformativeNotification(message, date) else UrgentNotification(message, date)
 }
+
+//fun showUserSelectionMenu(notificationManager: NotificationManager) {
+//    notificationManager.showUsers()
+//    println("Select the user by typing the id:")
+//    
+//}
+//
+//fun showSubjectSelectionMenu(notificationManager: NotificationManager){
+//    notificationManager.showSubjects()
+//    println("Select the subject by typing the id:")
+//    
+//}
+//

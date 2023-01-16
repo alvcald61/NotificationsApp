@@ -5,19 +5,26 @@ import java.time.LocalDate
 class InformativeNotification(
     message: String,
     expirationDate: LocalDate? = null,
-    seen: Boolean = false
+    seen: Boolean = false, 
+    id: Int? = null
 ) : Notification(
     message,
     expirationDate,
     seen
 ) {
+
+    constructor(notification: Notification) :
+            this(message = notification.message, expirationDate = notification.expirationDate,
+                seen = notification.seen, id = notification.id){
+
+    }
     override fun printNotification() {
-        println("Normal notification:")
+        println("Informative notification:")
         println("   ${this.message}")
-        this.seen = true
+//        this.seen = true
     }
 
     override fun copy() : Notification{
-        return InformativeNotification(message, expirationDate, seen)
+        return InformativeNotification(this)
     }
 }

@@ -140,6 +140,18 @@ class NotificationManagerImplTest {
         notificationManager.subscribeUserToSubject(user, subject)
         notificationManager.createNotification(subject, notification)
         notificationManager.showUserNotifications(user)
+        assertFalse(user.notifications.last().seen)
+    }
+    
+    @Test
+    fun markNotificationAsSeen(){
+        val user = users.find { it.name == "user1" }!!
+        val subject = subjects.find { it.name == "topic1" }!!
+        val notification = InformativeNotification("message")
+        notificationManager.subscribeUserToSubject(user, subject)
+        notificationManager.createNotification(subject, notification)
+        notificationManager.showUserNotifications(user)
+        notificationManager.markNotificationAsRead(user, user.notifications.last())
         assertTrue(user.notifications.last().seen)
     }
 }

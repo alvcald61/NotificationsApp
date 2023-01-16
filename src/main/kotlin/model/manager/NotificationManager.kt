@@ -1,6 +1,7 @@
 package model.manager
 
 import model.Notification
+import model.manager.impl.NotificationManagerImpl
 import model.observer.impl.User
 import model.orservable.impl.Subject
 
@@ -15,4 +16,5 @@ interface NotificationManager {
    fun createNotificationForUser(notification: Notification, user: User, subject: Subject)
    fun showUserNotifications(user: User)
    fun  showSubjectNotification(subject: Subject)
+    fun markNotificationAsRead(user: User, notification: Notification)
 }

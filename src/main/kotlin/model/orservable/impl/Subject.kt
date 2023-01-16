@@ -36,7 +36,9 @@ data class Subject(
     private fun getValidNotifications(): List<Notification> = notifications.filter { it.isValid() }
     
     fun showNotifications(){
-        getValidNotifications().forEach { 
+        getValidNotifications()
+            .reversed()
+            .forEach { 
             it.printNotification()
         }
     }

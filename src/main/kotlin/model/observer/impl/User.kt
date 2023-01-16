@@ -17,6 +17,10 @@ data class User(
         addNotification(notification)
     }
 
+    override fun markNotificationAsRead(notification: Notification) {
+        notifications.find { it.id == notification.id }?.seen = true
+    }
+
     override fun addNotification(notification: Notification) {
         notifications.add(notification)
     }
@@ -25,6 +29,7 @@ data class User(
     
     fun watchNotifications(){
         getValidNotifications()
+            .reversed()
             .forEach { 
                 it.printNotification()
         }

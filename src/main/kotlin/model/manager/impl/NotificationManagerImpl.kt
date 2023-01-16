@@ -57,6 +57,7 @@ class NotificationManagerImpl(
             subjectList.forEach { 
                 it.notifications.add(notification.copy())
             }
+            subject.registerNotification(notification.copy())
             userList.forEach { 
                 it.update(notification.copy())
             }
@@ -82,7 +83,9 @@ class NotificationManagerImpl(
     override fun showSubjectNotification( subject: Subject) {
         subject.showNotifications()
     }
-    
-    
+
+    override fun markNotificationAsRead(user: User, notification: Notification) {
+        user.markNotificationAsRead(notification)
+    }
 }
 
